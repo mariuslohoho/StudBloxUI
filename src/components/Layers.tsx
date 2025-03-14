@@ -35,11 +35,14 @@ export default function Layers({ canvas }: LayersProps) {
       <h1>Layers</h1>
       {canvas !== null && layers !== null ? (
         <div>
-          {layers.map((obj) => {
+          {layers.map((obj, index) => {
             const isSelected = selected.includes(obj);
             const layerClass = isSelected ? "bg-gray-200" : "";
             return (
-              <div className={`flex items-center ${layerClass}`}>
+              <div
+                className={`flex items-center ${layerClass}`}
+                key={index}
+              >
                 {obj.Name}
               </div>
             );

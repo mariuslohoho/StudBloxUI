@@ -6,6 +6,8 @@ import Properties from "./components/Properties.tsx";
 import { Button } from "./components/ui/button";
 import { SelectionProvider } from "./context/useSelection.tsx";
 
+import "./lib/fabric.ts";
+
 function App() {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -21,9 +23,11 @@ function App() {
         stroke: "#000",
         strokeWidth: 2,
         strokeUniform: true,
+
+        Name: "Frame",
+        UIStroke: true,
       });
 
-      rect.Name = "Frame";
       canvas.add(rect);
       rect.on("mouseover", () => {
         rect.set("fill", "#f0f0f0");
@@ -47,6 +51,7 @@ function App() {
 
       initCanvas.backgroundColor = "#fff";
       initCanvas.renderAll();
+      initCanvas.preserveObjectStacking = true;
 
       setCanvas(initCanvas);
 
@@ -70,9 +75,16 @@ function App() {
 
   return (
     <SelectionProvider canvas={canvas}>
-      <div className="mb-2">
+      <div className="mb-2 gap-1.5 flex justify-center">
         <Button className="InsertItem select-none" onMouseDown={addRect}>
           Insert Frame
+        </Button>
+        <Button
+          onMouseDown={() => {
+            console.log(canvas?.toObject());
+          }}
+        >
+          Debug:Print
         </Button>
       </div>
       <canvas id="canvas" ref={canvasRef}></canvas>

@@ -1,4 +1,5 @@
-import { FabricObject } from "fabric";
+import { FabricObject, StaticCanvas } from "fabric";
+
 declare module "fabric" {
   interface FabricObject {
     Name?: string;
@@ -33,3 +34,9 @@ FabricObject.customProperties = [
   "UIStrokeWidth",
   "UIStrokeColor",
 ];
+
+StaticCanvas.prototype.toObject = (function (originFn) {
+  return function (this: StaticCanvas) {
+    return originFn.call(this, FabricObject.customProperties);
+  };
+})(StaticCanvas.prototype.toObject);
