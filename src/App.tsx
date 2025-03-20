@@ -1,12 +1,14 @@
 import { Canvas, Rect } from "fabric";
 import { useEffect, useRef, useState } from "react";
-import "./App.css";
 import Layers from "./components/Layers.tsx";
 import Properties from "./components/Properties.tsx";
 import { Button } from "./components/ui/button";
 import { SelectionProvider } from "./context/useSelection.tsx";
 
 import "./lib/fabric.ts";
+
+import "react-complex-tree/lib/style-modern.css";
+import "./App.css";
 
 function App() {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
@@ -24,6 +26,7 @@ function App() {
         strokeWidth: 2,
         strokeUniform: true,
 
+        UID: Date.now(),
         Name: "Frame",
         UIStroke: true,
       });

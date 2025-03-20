@@ -2,7 +2,8 @@ import { FabricObject, StaticCanvas } from "fabric";
 
 declare module "fabric" {
   interface FabricObject {
-    Name?: string;
+    UID: number;
+    Name: string;
     Children?: FabricObject[];
 
     isChildren?: boolean;
@@ -13,7 +14,8 @@ declare module "fabric" {
   }
 
   interface SerializedObjectProps {
-    Name?: string;
+    UID: number;
+    Name: string;
     Children?: FabricObject[];
 
     isChildren?: boolean;
@@ -25,6 +27,7 @@ declare module "fabric" {
 }
 
 FabricObject.customProperties = [
+  "UID",
   "Name",
   "Children",
 
