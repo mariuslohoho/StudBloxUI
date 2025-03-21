@@ -1,14 +1,11 @@
 import { useSelection } from "@/context/useSelection";
-import { Canvas, FabricImage, FabricObject } from "fabric";
+import { Canvas, FabricObject } from "fabric";
 import { useEffect, useMemo, useState } from "react";
 import {
   ControlledTreeEnvironment,
   InteractionMode,
-  StaticTreeDataProvider,
   Tree,
   TreeItem,
-  TreeViewState,
-  UncontrolledTreeEnvironment,
 } from "react-complex-tree";
 
 interface LayersProps {
@@ -21,7 +18,6 @@ export default function Layers({ canvas }: LayersProps) {
   const [layers, setLayers] = useState<FabricObject[] | null>(null);
 
   const [focusedItem, setFocusedItem] = useState<UID>(0);
-  // const [selectedItems, setSelectedItems] = useState<UID[]>([]);
   const [expandedItems, setExpandedItems] = useState<UID[]>([]);
 
   const [selected, setSelected] = useSelection();
@@ -63,8 +59,6 @@ export default function Layers({ canvas }: LayersProps) {
           },
         ])
     );
-
-    console.log(JSON.stringify(entries));
 
     return {
       root: {
@@ -109,14 +103,14 @@ export default function Layers({ canvas }: LayersProps) {
             )
           }
           //
-          onSelectItems={(uids) =>
-            setSelected(
+          onSelectItems={(uids) => {
+            return setSelected(
               uids.map(
                 (uid) =>
                   layers.find((item) => item.UID === uid) as FabricObject
               )
-            )
-          }
+            );
+          }}
         >
           <Tree treeId="layers" rootItem="root" treeLabel="Test"></Tree>
         </ControlledTreeEnvironment>

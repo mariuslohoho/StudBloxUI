@@ -1,6 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
-import { clear } from "console";
-import { Canvas, FabricObject } from "fabric";
+import {
+  ActiveSelection,
+  Canvas,
+  FabricObject,
+  TEvent,
+  TPointerEvent,
+} from "fabric";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const SelectionContext = createContext<
@@ -21,21 +26,42 @@ export function SelectionProvider({
   const [selected, setSelected] = useState<FabricObject[] | null>(null);
 
   useEffect(() => {
-    if (!canvas) return;
-    canvas._setActiveObject(selected?.[0] as FabricObject);
+    if (!canvas || selected === null) return;
+
+    if (selected.length <= 1) {
+      canvas._setActiveObject(selected[0]);
+    } else if (selected.length > 1) {
+      const sel = new ActiveSelection(selected ?? [], {
+        canvas: canvas,
+      });
+      canvas._setActiveObject(sel);
+    }
+
     canvas.renderAll();
   }, [canvas, selected]);
 
   useEffect(() => {
     if (canvas) {
-      const select = (e: { selected: FabricObject[] }) => {
-        setSelected(e.selected);
+      const select = (
+        options: Partial<TEvent<TPointerEvent>> & {
+          selected: FabricObject[];
+          deselected: FabricObject[];
+        }
+      ) => {
+        if (options.e?.shiftKey) {
+          setSelected([...(selected ?? []), ...options.selected]);
+        } else {
+          setSelected(options.selected);
+        }
       };
 
-      const clearSelect = () => setSelected(null);
+      const clearSelect = () => {
+        setSelected(null);
+        canvas._discardActiveObject();
+        canvas.renderAll();
+      };
 
       canvas.on("selection:created", select);
-
       canvas.on("selection:updated", select);
 
       canvas.on("selection:cleared", clearSelect);
@@ -46,7 +72,7 @@ export function SelectionProvider({
         canvas.off("selection:cleared", clearSelect);
       };
     }
-  }, [canvas]);
+  }, [canvas, selected]);
 
   return (
     <SelectionContext.Provider value={[selected, setSelected]}>
