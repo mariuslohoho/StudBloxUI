@@ -3,9 +3,11 @@ import { Canvas, FabricObject } from "fabric";
 import { useEffect, useMemo, useState } from "react";
 import {
   ControlledTreeEnvironment,
+  DraggingPosition,
   InteractionMode,
   Tree,
   TreeItem,
+  TreeItemIndex,
 } from "react-complex-tree";
 
 interface LayersProps {
@@ -24,9 +26,7 @@ export default function Layers({ canvas }: LayersProps) {
 
   useEffect(() => {
     const updateLayers = () => {
-      const objects = canvas
-        ?.getObjects()
-        .filter((obj) => !obj.isChildren);
+      const objects = canvas?.getObjects();
 
       setLayers((objects ?? []).reverse());
     };
@@ -44,28 +44,63 @@ export default function Layers({ canvas }: LayersProps) {
     }
   }, [canvas]);
 
-  const items = useMemo(() => {
-    const entries = Object.fromEntries(
-      (layers ?? [])
-        .filter((item) => !item.isChildren)
-        .map((item) => [
-          item.UID,
-          {
-            index: item.UID,
-            canMove: true,
-            isFolder: (item.Children?.length ?? 0) > 0,
-            canRename: true,
-            data: item,
-          },
-        ])
-    );
+  const onDrop = (
+    items: TreeItem<FabricObject>[],
+    target: DraggingPosition
+  ) => {
+    if (target.targetType === "item") {
+      setLayers((prev) => {
+        if (!prev) return prev;
+        const parent = prev?.findIndex(
+          (item) => item.UID === target.targetItem
+        );
+
+        if (!prev[parent]) return prev;
+        const movedItems = items
+          .map((item) => {
+            const layer = prev.find(
+              (layer) => layer.UID === item.data.UID
+            );
+            if (layer) {
+              layer.isChildren = true;
+            }
+            return layer?.UID;
+          })
+          .filter(Boolean) as number[];
+
+        prev[parent].Children = [
+          ...new Set([...(prev[parent].Children || []), ...movedItems]),
+        ];
+
+        return [...prev];
+      });
+    }
+  };
+
+  const items: Record<
+    TreeItemIndex,
+    TreeItem<FabricObject>
+  > = useMemo(() => {
+    const entries: Record<number, object> = {};
+    for (const item of layers ?? []) {
+      entries[item.UID] = {
+        index: item.UID,
+        canMove: true,
+        isFolder: (item.Children?.length ?? 0) > 0,
+        canRename: true,
+        data: item,
+        children: item.Children ?? [],
+      };
+    }
 
     return {
       root: {
         index: "root",
         isFolder: true,
         data: null as unknown as FabricObject,
-        children: (layers ?? []).map((item) => item.UID),
+        children: (layers ?? [])
+          .filter((item) => !item.isChildren)
+          .map((item) => item.UID),
       },
       ...entries,
     };
@@ -89,7 +124,9 @@ export default function Layers({ canvas }: LayersProps) {
               expandedItems,
             },
           }}
-          getItemTitle={(item: TreeItem<FabricObject>) => item.data.Name}
+          getItemTitle={(item: TreeItem<FabricObject>) =>
+            `${item.data.Name}(${item.data.UID})`
+          }
           items={items}
           //
           onFocusItem={(item) => setFocusedItem(item.data.UID)}
@@ -111,6 +148,8 @@ export default function Layers({ canvas }: LayersProps) {
               )
             );
           }}
+          //
+          onDrop={onDrop}
         >
           <Tree treeId="layers" rootItem="root" treeLabel="Test"></Tree>
         </ControlledTreeEnvironment>
