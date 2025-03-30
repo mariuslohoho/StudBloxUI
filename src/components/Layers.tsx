@@ -1,6 +1,6 @@
 import { useSelection } from "@/context/useSelection";
 import { Canvas, FabricObject } from "fabric";
-import { useEffect, useMemo, useState } from "react";
+import { Children, useEffect, useMemo, useState } from "react";
 import {
   ControlledTreeEnvironment,
   DraggingPosition,
@@ -56,6 +56,17 @@ export default function Layers({ canvas }: LayersProps) {
         );
 
         if (!prev[parent]) return prev;
+
+        items.forEach((item) => {
+          prev.forEach((layer) => {
+            if (layer.Children?.includes(item.index as number)) {
+              layer.Children = layer.Children.filter(
+                (child) => child !== item.index
+              );
+            }
+          });
+        });
+
         const movedItems = items
           .map((item) => {
             const layer = prev.find(
@@ -71,6 +82,55 @@ export default function Layers({ canvas }: LayersProps) {
         prev[parent].Children = [
           ...new Set([...(prev[parent].Children || []), ...movedItems]),
         ];
+
+        return [...prev];
+      });
+    } else if (target.targetType === "root") {
+      // Never triggered this event before
+      setLayers((prev) => {
+        if (!prev) return prev;
+        items.forEach((item) => (prev[item.data.UID].isChildren = false));
+        prev.map((item) => ({
+          ...item,
+          Children:
+            item.Children?.filter(
+              (child) => !items.find((i) => i.data.UID === child)
+            ) ?? [],
+        }));
+        return [...prev];
+      });
+    } else if (target.targetType === "between-items") {
+      setLayers((prev) => {
+        if (!prev) return prev;
+
+        items.forEach((item) => {
+          prev.forEach((layer) => {
+            if (layer.Children?.includes(item.index as number)) {
+              layer.Children = layer.Children.filter(
+                (child) => child !== item.index
+              );
+            }
+          });
+        });
+
+        const parent = prev.findIndex(
+          (item) => item.UID === target.parentItem
+        );
+
+        prev[parent]?.Children?.insertArray(
+          items.map((item) => item.data.UID),
+          target.childIndex
+        );
+
+        if (target.depth > 0) {
+          items.forEach((item) => {
+            item.data.isChildren = true;
+          });
+        } else {
+          items.forEach((item) => {
+            item.data.isChildren = false;
+          });
+        }
 
         return [...prev];
       });
@@ -150,6 +210,7 @@ export default function Layers({ canvas }: LayersProps) {
           }}
           //
           onDrop={onDrop}
+          //
         >
           <Tree treeId="layers" rootItem="root" treeLabel="Test"></Tree>
         </ControlledTreeEnvironment>
