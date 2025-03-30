@@ -1,6 +1,6 @@
 import { useSelection } from "@/context/useSelection";
 import { Canvas, FabricObject } from "fabric";
-import { Children, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ControlledTreeEnvironment,
   DraggingPosition,
