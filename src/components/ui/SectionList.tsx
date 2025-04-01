@@ -1,8 +1,6 @@
-import { Bold, Italic, Underline } from "lucide-react";
 import React from "react";
 import { Label } from "./label";
 import { Separator } from "./separator";
-import { Toggle } from "./toggle";
 import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
 interface SectionListProps extends React.PropsWithChildren {

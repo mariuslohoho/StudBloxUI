@@ -24,22 +24,22 @@ export default function Layers({ canvas }: LayersProps) {
 
   const [selected, setSelected] = useSelection();
 
-  useEffect(()=>{
-    const onKeyDown = (input:KeyboardEvent)=>{
-      if (input.code === 'Delete') {
-        selected?.forEach((item)=>canvas?.remove(item))
-        setSelected(null)
+  useEffect(() => {
+    const onKeyDown = (input: KeyboardEvent) => {
+      if (input.code === "Delete") {
+        selected?.forEach((item) => canvas?.remove(item));
+        setSelected(null);
         canvas?._discardActiveObject();
-        canvas?.renderAll()
+        canvas?.renderAll();
       }
-    }
+    };
 
-    document.addEventListener('keydown', onKeyDown)
-    
-    return ()=>{
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  },[canvas, selected])
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [canvas, selected, setSelected]);
 
   useEffect(() => {
     const updateLayers = () => {
@@ -47,7 +47,7 @@ export default function Layers({ canvas }: LayersProps) {
 
       setLayers((objects ?? []).reverse());
     };
-    
+
     if (canvas) {
       canvas.on("object:added", updateLayers);
       canvas.on("object:modified", updateLayers);

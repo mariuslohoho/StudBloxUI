@@ -1,7 +1,14 @@
 import { FabricObject, StaticCanvas } from "fabric";
 
 type UID = number;
-
+type UDim2 = {
+  X: { Scale: number; Offset: number };
+  Y: { Scale: number; Offset: number };
+};
+type Vector2 = {
+  X: number;
+  Y: number;
+};
 declare module "fabric" {
   interface FabricObject {
     UID: UID;
@@ -9,6 +16,9 @@ declare module "fabric" {
     Children?: UID[];
 
     isChildren?: boolean;
+
+    AnchorPoint?: Vector2;
+    Position?: UDim2;
 
     UIStroke?: boolean;
     UIStrokeWidth?: number;
@@ -22,6 +32,9 @@ declare module "fabric" {
 
     isChildren?: boolean;
 
+    AnchorPoint?: Vector2;
+    Position?: UDim2;
+
     UIStroke?: boolean;
     UIStrokeWidth?: number;
     UIStrokeColor?: string;
@@ -34,6 +47,9 @@ FabricObject.customProperties = [
   "Children",
 
   "isChildren",
+
+  "AnchorPoint",
+  "Position",
 
   "UIStroke",
   "UIStrokeWidth",
