@@ -28,6 +28,9 @@ export default function Layers({ canvas }: LayersProps) {
     const onKeyDown = (input:KeyboardEvent)=>{
       if (input.code === 'Delete') {
         selected?.forEach((item)=>canvas?.remove(item))
+        setSelected(null)
+        canvas?._discardActiveObject();
+        canvas?.renderAll()
       }
     }
 
