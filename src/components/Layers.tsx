@@ -24,13 +24,27 @@ export default function Layers({ canvas }: LayersProps) {
 
   const [selected, setSelected] = useSelection();
 
+  useEffect(()=>{
+    const onKeyDown = (input:KeyboardEvent)=>{
+      if (input.code === 'Delete') {
+        selected?.forEach((item)=>canvas?.remove(item))
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    
+    return ()=>{
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  },[canvas, selected])
+
   useEffect(() => {
     const updateLayers = () => {
       const objects = canvas?.getObjects();
 
       setLayers((objects ?? []).reverse());
     };
-
+    
     if (canvas) {
       canvas.on("object:added", updateLayers);
       canvas.on("object:modified", updateLayers);
